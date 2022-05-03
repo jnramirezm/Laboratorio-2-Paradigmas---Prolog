@@ -15,7 +15,7 @@ fcard(N, X, [X|L]):-
 ncards(N,J,L):-
         ncards(N, J, 1, 1, L).
 
-ncards(N, J, K, L, [L]):-
+ncards(N, _, K, L, [L]):-
     K > N.
 
 ncards(N, J, K,X,[X|L]):-
@@ -43,7 +43,7 @@ nncards4(N,K,I,J,L):-
     X1 is I+1,
     nncards4(N,K,I,J,X1,L).
 
-nncards4(N,K,I,J,L,[L]):-
+nncards4(N,K,_,_,L,[L]):-
     K > N.
 
 nncards4(N,K,I,J,X1,[X1|L]):-
@@ -56,7 +56,7 @@ nncards3(N,I,J,L):-
 	nncards4(N,1,I,J,L1),
 	nncards3(N,I,J,L1,L).
 
-nncards3(N,I,J,L,[L]):-
+nncards3(N,_,J,L,[L]):-
     J >= N.
 
 nncards3(N,I,J,L1,[L1|L]):-
@@ -91,3 +91,41 @@ mazo(N,L):-
     append([L1],L2,L3),
     nncards(N,L4),
     append(L3,L4,L).
+
+% Utilizacion maxC
+limitarmazo(N,M,LE,L):-
+    mazo(N,L1),
+    length(L,M),
+    append(L2,_,L1),
+	melemento(L2,LE,L).
+
+%[a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
+
+% Intercambio de elementos
+intercambiarelementos([I|_],L2,X):-
+    nth1(I,L2,X).
+
+ie(L1,L2,L):-
+    intercambiarelementos(L1,L2,X),
+    ieaux(L1,L2,X,L).
+
+ieaux(L1,_,L,[L]):-
+    same_length(L1,[L]), !.
+
+ieaux([_|L1],L2,X,[X|L]):-
+    intercambiarelementos(L1,L2,E),
+    ieaux(L1,L2,E,L).
+
+melemento([P|M],LE,L):-
+    ie(P,LE,X),
+    mazoelemento(M,LE,X,L).
+
+mazoelemento(L1,_,L,[L]):-
+    length(L1,X),
+    length([L],X1),
+    X2 is X+1,
+    X2 = X1.
+    
+mazoelemento([I|M],L2,X,[X|L]):-
+    ie(I,L2,LA),
+    mazoelemento(M,L2,LA,L).
