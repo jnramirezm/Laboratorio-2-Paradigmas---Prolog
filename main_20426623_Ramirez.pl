@@ -101,7 +101,6 @@ limitarmazo(N,M,LE,L):-
 
 %[a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
 
-% Intercambio de elementos
 intercambiarelementos([I|_],L2,X):-
     nth1(I,L2,X).
 
@@ -129,3 +128,45 @@ mazoelemento(L1,_,L,[L]):-
 mazoelemento([I|M],L2,X,[X|L]):-
     ie(I,L2,LA),
     mazoelemento(M,L2,LA,L).
+    
+%cardsSet [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
+
+cardsSet(LE,NumE,MaxC,_,CS):-
+    NumEA is NumE-1,
+    limitarmazo(NumEA,MaxC,LE,CS).
+
+
+%cardsSetIsDoble
+% Mismo tamano toda carta
+mismoTamano([_|[]],_):-
+    !.
+mismoTamano([P|M], V):-
+    nth1(1,M,SC),
+    same_length(P,SC),
+    mismoTamano(M,V).
+    
+% No elemento en comun en la carta
+noElementoComun([],_).
+noElementoComun([P|M],X):-
+    is_set(P),
+    noElementoComun(M,X).
+
+% Interseccion = 1
+interseccionCarta([_|[]],_):-
+    !.
+
+interseccionCarta([P|M],V):-
+    interseccionCartas(P,M,V),
+    interseccionCarta(M,V).
+
+interseccionCartas(_,[_|[]],_):-
+    !.
+interseccionCartas(C,[P|M], V):-
+    intersection(C,P,LI),
+    length(LI,1),
+    interseccionCartas(C,M,V).
+
+cardsSetIsDobble(CS):- 
+    mismoTamano(CS,_),
+    noElementoComun(CS,_),
+    interseccionCarta(CS,_).
