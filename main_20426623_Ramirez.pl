@@ -177,3 +177,9 @@ cardsSetNthCard(CS,I,C):-
     I < X,
     nth0(I,CS,C),
     !.
+    
+%cardsSetFindTotalCards
+cardsSetFindTotalCards(C,I):-
+    length(C,N),
+    I is (((N-1)*(N-1))+(N-1)+1),
+    !.
