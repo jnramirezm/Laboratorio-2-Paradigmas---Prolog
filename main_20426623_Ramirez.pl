@@ -170,3 +170,10 @@ cardsSetIsDobble(CS):-
     mismoTamano(CS,_),
     noElementoComun(CS,_),
     interseccionCarta(CS,_).
+
+% cardsSetNthCard
+cardsSetNthCard(CS,I,C):-
+    length(CS,X),
+    I < X,
+    nth0(I,CS,C),
+    !.
