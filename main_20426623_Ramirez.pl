@@ -93,11 +93,17 @@ mazo(N,L):-
     append(L3,L4,L).
 
 % Utilizacion maxC
-limitarmazo(N,M,LE,L):-
-    mazo(N,L1),
+limitarmazo(Mazo,M,L):-
     length(L,M),
-    append(L2,_,L1),
-	melemento(L2,LE,L).
+    append(L,_,Mazo),
+    length(L,Y),
+    M = Y.
+
+limitarmaz(Mazo,M,L):-
+    length(L,M),
+    append(L,_,Mazo),
+    length(L,Y),
+    M >= Y.
 
 %[a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
 
@@ -133,8 +139,19 @@ mazoelemento([I|M],L2,X,[X|L]):-
 
 cardsSet(LE,NumE,MaxC,_,CS):-
     NumEA is NumE-1,
-    limitarmazo(NumEA,MaxC,LE,CS).
+    mazo(NumEA,L),
+    length(L,X),
+    MaxC = X,
+    melemento(L,LE,L2),
+    limitarmazo(L2,MaxC,CS),
+    !.
 
+cardsSet(LE,NumE,MaxC,_,CS):-
+    NumEA is NumE-1,
+    mazo(NumEA,L),
+    melemento(L,LE,L2),
+    limitarmaz(L2,MaxC,CS),
+    !.
 
 %cardsSetIsDoble
 % Mismo tamano toda carta
@@ -177,9 +194,18 @@ cardsSetNthCard(CS,I,C):-
     I < X,
     nth0(I,CS,C),
     !.
-    
+
 %cardsSetFindTotalCards
 cardsSetFindTotalCards(C,I):-
     length(C,N),
     I is (((N-1)*(N-1))+(N-1)+1),
     !.
+
+%cardsSetMissingCards
+cardsSetMissingCards(Cartas,CS):-
+    cardsSetIsDobble(Cartas),
+    cardsSetNthCard(Cartas,0,C),
+    length(C,X),
+    cardsSetFindTotalCards(C,TC),
+    cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],X,TC,_,CS1),
+    subtract(CS1,Cartas,CS).
