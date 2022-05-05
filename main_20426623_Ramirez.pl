@@ -209,3 +209,35 @@ cardsSetMissingCards(Cartas,CS):-
     cardsSetFindTotalCards(C,TC),
     cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],X,TC,_,CS1),
     subtract(CS1,Cartas,CS).
+
+    %cardsSetToString
+cardsSetToString1(CS,CS_STR):-
+    length(CS,L),
+    getFirstCard(CS,C),
+    atomics_to_string(C, C1),
+    getNextCards(CS,Cartas),
+    string_concat(" Carta", " 1", S1),
+    string_concat("= ", C1, S2),
+    string_concat(S1,S2,S3),
+    cardsSetToStringAux(Cartas,1,L,S3,CS_STR).
+
+cardsSetToStringAux(_,Cont,L,CS_STR,[CS_STR]):-
+	L = Cont,!.
+
+cardsSetToStringAux(CS,Cont,L,S,[S|CS_STR]):-
+    Cont =< L,
+    ContAux is Cont+1,
+    getFirstCard(CS,C),
+    atomics_to_string(C, C1),
+    getNextCards(CS,Cartas),
+    string_concat("  \nCarta ", ContAux, S1),
+    string_concat("= ", C1, S2),
+    string_concat(S1,S2,S3),
+    cardsSetToStringAux(Cartas,ContAux,L,S3,CS_STR).
+
+cardsSetToString(CS, CS_STR):-
+    cardsSetToString1(CS,X),
+    atomics_to_string(X,L1),
+    string_concat(" -----------  MAZO ---------------  ", "\n",S1),
+    string_concat(S1,L1 ,S2),
+    string_concat(S2, "\n -------- FIN --------", CS_STR).
