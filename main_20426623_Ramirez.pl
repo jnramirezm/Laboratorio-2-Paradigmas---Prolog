@@ -152,6 +152,10 @@ cardsSet(LE,NumE,MaxC,_,CS):-
     melemento(L,LE,L2),
     limitarmaz(L2,MaxC,CS),
     !.
+    
+% Selectores Cartas
+getFirstCard([First|_],First).
+getNextCards([_|NextCards], NextCards).
 
 %cardsSetIsDoble
 % Mismo tamano toda carta
@@ -241,3 +245,85 @@ cardsSetToString(CS, CS_STR):-
     string_concat(" -----------  MAZO ---------------  ", "\n",S1),
     string_concat(S1,L1 ,S2),
     string_concat(S2, "\n -------- FIN --------", CS_STR).
+
+% TDA JUGADOR
+%
+%
+%
+player(Name,[Name,[],0,0]):-
+    string(Name),!.
+
+%Selectores
+getPlayerName([Name|_],Name).
+getPlayerCards([_,Cards,_,_],Cards).
+getPlayerTurno([_,_,Turno,_],Turno).
+getPlayerPuntos([_,_,_,Puntos],Puntos).
+
+getFirstPlayer([Player|_],Player).
+getNextPlayers([_|NextPlayers],NextPlayers).
+
+%TDA Game
+%
+%
+%
+game(NumPlayers,CardsSet,Mode,_,[NumPlayers,CardsSet,Mode,[],[],0,[]]):-
+    cardsSetIsDobble(CardsSet),
+    integer(NumPlayers),!.
+
+%Selectores
+getGameNumPlayers([NumPlayers|_],NumPlayers).
+getGamecardsSet([_,CardsSet,_,_,_,_,_],CardsSet).
+getGameMode([_,_,Mode,_,_,_,_],Mode).
+getGamePlayers([_,_,_,Players,_,_,_],Players).
+getGameMesa([_,_,_,_,Mesa,_,_],Mesa).
+getGameEstado([_,_,_,_,_,Estado,_],Estado).
+getGameFin([_,_,_,_,_,_,Fin],Fin).
+
+%Modificadores
+actualizarGame(NumPlayers,CardsSet,Mode,Players,Mesa,Estado,Fin,GameOut):-
+    GameOut = [NumPlayers,CardsSet,Mode,Players,Mesa,Estado,Fin].
+
+%
+ mymember(X,[[X,_,_,_]|_]):-!.
+       mymember(X,[_|T]) :- mymember(X,T).
+
+%dobbleGameRegister
+dobbleGameRegister(Nombre,GameIn,GameOut):-
+    player(Nombre,P),
+    getGameNumPlayers(GameIn,NP),
+    integer(NP),
+    getGamecardsSet(GameIn,CardsSet),
+    getGameMode(GameIn,Mode),
+    getGamePlayers(GameIn, Players),
+    length(Players,TP),
+    getGameMesa(GameIn,Mesa),
+    getGameEstado(GameIn,Estado),
+    getGameFin(GameIn,Fin),
+    TP < NP,
+    not(mymember(Nombre,Players)),
+    actualizarGame(NP,CardsSet,Mode,[P|Players],Mesa,Estado,Fin,GameOut),!.
+
+dobbleGameRegister(Nombre,GameIn,GameOut):-
+    getGameNumPlayers(GameIn,NP),
+    integer(NP),
+    getGamecardsSet(GameIn,CardsSet),
+    getGameMode(GameIn,Mode),
+    getGamePlayers(GameIn, Players),
+    length(Players,TP),
+    getGameMesa(GameIn,Mesa),
+    getGameEstado(GameIn,Estado),
+    getGameFin(GameIn,Fin),
+    TP < NP,
+    mymember(Nombre,Players),
+    actualizarGame(NP,CardsSet,Mode,Players,Mesa,Estado,Fin,GameOut),!.
+
+dobbleGameRegister(_,GameIn,GameOut):-
+    getGameNumPlayers(GameOut,NP),
+    integer(NP),
+    getGamecardsSet(GameOut,CardsSet),
+    getGameMode(GameOut,Mode),
+    getGamePlayers(GameOut, Players),
+    getGameMesa(GameOut,Mesa),
+    getGameEstado(GameOut,Estado),
+    getGameFin(GameOut,Fin),
+    actualizarGame(NP,CardsSet,Mode,Players,Mesa,Estado,Fin,GameIn),!.
