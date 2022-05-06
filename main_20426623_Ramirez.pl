@@ -262,11 +262,14 @@ getPlayerPuntos([_,_,_,Puntos],Puntos).
 getFirstPlayer([Player|_],Player).
 getNextPlayers([_|NextPlayers],NextPlayers).
 
+%Modificador
+actualizarPlayer(Name,Cards,Turno,Puntos,PlayerOut):-
+    PlayerOut = [Name,Cards,Turno,Puntos],!.
 %TDA Game
 %
 %
 %
-game(NumPlayers,CardsSet,Mode,_,[NumPlayers,CardsSet,Mode,[],[],0,[]]):-
+game(NumPlayers,CardsSet,Mode,_,[NumPlayers,CardsSet,Mode,[],[],0,""]):-
     cardsSetIsDobble(CardsSet),
     integer(NumPlayers),!.
 
@@ -327,3 +330,49 @@ dobbleGameRegister(_,GameIn,GameOut):-
     getGameEstado(GameOut,Estado),
     getGameFin(GameOut,Fin),
     actualizarGame(NP,CardsSet,Mode,Players,Mesa,Estado,Fin,GameIn),!.
+
+%whoseTurnIsIt
+listTurnos([],[]):-!.
+listTurnos(Players, [Turno|LT]):-
+    getFirstPlayer(Players, Player),
+    getPlayerTurno(Player, Turno),
+    getNextPlayers(Players,NextPlayers),
+    listTurnos(NextPlayers, LT).
+
+turnoPlayer([[Name,_,X,_]|_],N,Name):- 
+    X<N,!.
+
+turnoPlayer(Players,N,NP):-
+    getNextPlayers(Players, NextPlayers),
+    turnoPlayer(NextPlayers,N,NP).
+    
+cantNMayor([],_,Cont,L,Cont):-
+    Cont = L,
+    !.
+
+cantNMayor(Players,NMayor,Cont,L,I):-
+    getFirstPlayer(Players,P),
+    getNextPlayers(Players, NextPlayers),
+    getPlayerTurno(P,T),
+    T = NMayor,
+    ContAux is Cont+1,
+    cantNMayor(NextPlayers, NMayor,ContAux,L, I).
+
+cantNMayor(Players, NMayor,Cont,L ,I):-
+    getNextPlayers(Players, NextPlayers),
+    cantNMayor(NextPlayers,NMayor,Cont,L,I).
+
+dobbleGameWhoseTurnIsIt(G,NP):-
+    getGamePlayers(G,Players),
+    listTurnos(Players,LT),
+    max_list(LT,NMayor),
+    length(Players,X),
+    cantNMayor(Players,NMayor,0,X,_),
+    getFirstPlayer(Players,P),
+    getPlayerName(P,NP),!.
+
+dobbleGameWhoseTurnIsIt(G,NP):-
+    getGamePlayers(G,Players),
+    listTurnos(Players,LT),
+    max_list(LT,NMayor),
+    turnoPlayer(Players,NMayor,NP).
