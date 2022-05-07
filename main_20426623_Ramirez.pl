@@ -105,8 +105,6 @@ limitarmaz(Mazo,M,L):-
     length(L,Y),
     M >= Y.
 
-%[a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
-
 intercambiarelementos([I|_],L2,X):-
     nth1(I,L2,X).
 
@@ -134,8 +132,6 @@ mazoelemento(L1,_,L,[L]):-
 mazoelemento([I|M],L2,X,[X|L]):-
     ie(I,L2,LA),
     mazoelemento(M,L2,LA,L).
-    
-%cardsSet [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
 
 myRandom(Xn, Xn1):-
 AX is 110 * Xn,
@@ -187,6 +183,7 @@ mazoAleatorio(N,Mazo, MazoAl):-
     myRandom(N, Seed),
     myshuffle(Mazo,Seed,MazoAl),!.
     
+
 cardsSet(LE,NumE,MaxC,Seed,CS):-
     NumEA is NumE-1,
     mazo(NumEA,L),
@@ -263,7 +260,7 @@ cardsSetMissingCards(Cartas,CS):-
     cardsSetNthCard(Cartas,0,C),
     length(C,X),
     cardsSetFindTotalCards(C,TC),
-    cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],X,TC,_,CS1),
+    cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],X,TC,12,CS1),
     subtract(CS1,Cartas,CS).
 
     %cardsSetToString
@@ -439,7 +436,72 @@ dobbleGameWhoseTurnIsIt(G,NP):-
 
 %dobbleGamePlay
 
+% ----null---
+twoCards(CS,[C,C1]):-
+    getFirstCard(CS,C),
+    getNextCards(CS,NextCards),
+    getFirstCard(NextCards,C1),!.
+
+buscar([[Name,X,Y,Z]|_],Name,[Name,X,Y,Z]):-!.
+buscar(Players,Name,P):-
+   getNextPlayers(Players,NextPlayers),
+   buscar(NextPlayers,Name,P).
+
+
+
+actualizarPlayersAux(Players,Player,TL,Cont,[Player|PsA]):-
+    Cont=< TL,
+  	getFirstPlayer(Players, FirstPlayer),
+    getNextPlayers(Players, NextPlayers),
+    getPlayerName(FirstPlayer, NameP),
+    getPlayerName(Player, Name),
+    Name = NameP,
+    ContAux is Cont+1,
+    actualizarPlayersAux(NextPlayers,Player,TL,ContAux,PsA).
+
+actualizarPlayersAux(Players,Player,TL,Cont,[FirstPlayer|PsA]):-
+    Cont=< TL,
+    getFirstPlayer(Players, FirstPlayer),
+    getNextPlayers(Players, NextPlayers),
+    ContAux is Cont+1,
+    actualizarPlayersAux(NextPlayers,Player,TL,ContAux,PsA).
+                     
+actualizarPlayersAux(_,_,TL,Cont,[]):-
+    Cont=TL,!.
+
+actualizarPlayers(Players,Player,PsA):-
+    length(Players,TL),
+    actualizarPlayersAux(Players,Player,TL,0,PsA).
+
+listPuntos([],[]):-!.
+listPuntos(Players, [Puntos|LT]):-
+    getFirstPlayer(Players, Player),
+    getPlayerPuntos(Player, Puntos),
+    getNextPlayers(Players,NextPlayers),
+    listPuntos(NextPlayers, LT).
+
+esganadorAux(Players,MaxP,Int):-
+    esganador(Players,MaxP,Int),!.
+
+esganador([],_,0):-!.
+esganador([[_,_,_,X]|NextPlayers],X,Int):-
+    esganador(NextPlayers,X,IntAux),
+    Int is IntAux+1.
+esganador([_|NextPlayers], MaxP, Int):-
+    esganador(NextPlayers,MaxP,Int).
+
+buscarganador([[NP,_,_,MaxP]|_],MaxP,NP):-!.
+buscarganador([_|NextPlayers],MaxP,N):-
+    buscarganador(NextPlayers,MaxP,N).
+
+buscarganadores([],_,[]):-!.
+buscarganadores([[NP,_,_,MaxP]|NextPlayers],MaxP,[NP|L]):-
+    buscarganadores(NextPlayers,MaxP,L).
+buscarganadores([_|NextPlayers],MaxP,L):-
+    buscarganadores(NextPlayers,MaxP,L).
+
 getCartasMesa(Mesa,Mesa).
+
 % Se quitan 2 cartas de la baraja para dejarlas en Mesa, ningun jugador utiliza turno.
 dobbleGamePlay(Game,Action,GameOut):-
     getGameEstado(Game, Estado),
@@ -454,3 +516,70 @@ dobbleGamePlay(Game,Action,GameOut):-
     getGameEstado(Game,Estado),
     getGameFin(Game,Fin),
     actualizarGame(NP,CSGame,Mode,Players,C2,Estado,Fin,GameOut),!.
+    
+% El jugador que posee el turno realiza la accion Pass, utilizando si turno y la baraja del juego
+% se le anaden las cartas de la mesa
+dobbleGamePlay(Game,Action,GameOut):-
+    getGameEstado(Game, Estado),
+    Estado = 0,
+    Action = pass,
+    dobbleGameWhoseTurnIsIt(Game,NP),
+    getGamePlayers(Game,Players),
+ 	buscar(Players,NP,P),
+    getPlayerName(P,Name),
+    getPlayerCards(P,Cards),
+    getPlayerTurno(P,Turno),
+    TurnoAux is Turno+1,
+    getPlayerPuntos(P,Puntos),
+    actualizarPlayer(Name,Cards,TurnoAux,Puntos,PActualizado),
+    actualizarPlayers(Players,PActualizado,PsActualizado),
+	%reverse(PA1, [_|PA2]),
+    %reverse(PA2, PsActualizado),
+    getGameNumPlayers(Game,NumP),
+    getGamecardsSet(Game,CardsSet),
+    getGameMode(Game,Mode),
+    getGameMesa(Game,Mesa),
+    getGameEstado(Game,Estado),
+    getGameFin(Game,Fin),
+    append(CardsSet,Mesa,CSActualizado),
+    actualizarGame(NumP,CSActualizado,Mode,PsActualizado,[],Estado,Fin,GameOut),!.
+
+% Termina el Juego, cambiando el estado del Juego a 1, y crea el mensaje del Ganador
+dobbleGamePlay(Game,Action, GameOut):-
+    getGameEstado(Game, Estado),
+    Estado = 0,
+    Action = finish,
+    getGamePlayers(Game,Players),
+    listPuntos(Players,LPuntos),
+    max_list(LPuntos, MaxPunto),
+    esganadorAux(Players,MaxPunto,I),
+    I = 1,
+    buscarganador(Players,MaxPunto,Name),
+    getGameNumPlayers(Game,NumP),
+    getGamecardsSet(Game,CardsSet),
+    getGameMode(Game,Mode),
+    getGameMesa(Game,Mesa),
+    string_concat("El Ganador es = ", Name, Fin),
+    actualizarGame(NumP,CardsSet,Mode,Players,Mesa,1,Fin,GameOut),!.
+
+% Termina el Juego, cambiando el estado del Juego a 1, y crea el mensaje de los Empatados
+dobbleGamePlay(Game,Action, GameOut):-
+    getGameEstado(Game, Estado),
+    Estado = 0,
+    Action = finish,
+    getGamePlayers(Game,Players),
+    listPuntos(Players,LPuntos),
+    max_list(LPuntos, MaxPunto),
+    buscarganadores(Players,MaxPunto,LNames),
+    getGameNumPlayers(Game,NumP),
+    getGamecardsSet(Game,CardsSet),
+    getGameMode(Game,Mode),
+    getGameMesa(Game,Mesa),
+    atomics_to_string(LNames,Names),
+    string_concat("Hay Empate entre = ", Names, Fin),
+    actualizarGame(NumP,CardsSet,Mode,Players,Mesa,1,Fin,GameOut),!.
+
+% Si El juego esta Finalizado el Juego queda igual.
+dobbleGamePlay(Game, _, Game):-
+    getGameEstado(Game, Estado),
+    Estado = 1,!.
