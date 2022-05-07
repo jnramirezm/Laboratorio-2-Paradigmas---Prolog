@@ -137,20 +137,72 @@ mazoelemento([I|M],L2,X,[X|L]):-
     
 %cardsSet [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
 
-cardsSet(LE,NumE,MaxC,_,CS):-
+myRandom(Xn, Xn1):-
+AX is 110 * Xn,
+AXC is AX + 123,
+Xn1 is (AXC mod 226).
+
+myshuffle(Xs, Xn1, L) :-
+   length(Xs, N),
+   H is N - N // 2,
+   length(Ys, H),
+   append(Ys, LSup, Xs),
+   subtract(Xs,LSup,LInf),
+   append(LSup,LInf,Lista),
+   myshuffleAux(Lista,Xn1,0,L),!.
+
+myshuffleAux(Lista4,Xn1,Cont,Lista4):-
+    Cont = Xn1,!.
+myshuffleAux(Lista,Xn1,Cont,L):-
+    Cont =< Xn1,
+    X is Cont mod 2,
+    X = 0,
+	length(Lista, N),
+    H is N - N // 2,
+    length(Ys, H),
+    append(Ys, LSup, Lista),
+    subtract(Lista,LSup,LInf),
+    append(LSup,LInf,Lista2),
+    ContAux is Cont+1,
+    myshuffleAux(Lista2,Xn1,ContAux,L).
+
+myshuffleAux(Lista,Xn1,Cont,L):-
+    Cont =< Xn1,
+    length(Lista, N),
+  	H is N - N // 2,
+    length(Ys, H),
+    append(Ys, LSup, Lista),
+    length(LSup, Y),
+  	X is Y - Y // 2,
+    length(Bs, X),
+    append(Bs, LSup1, LSup),
+    subtract(LSup,LSup1,LInf1),
+    append(LSup1,LInf1,LSup2),
+   subtract(Lista,LSup2, L3),
+    append(L3,LSup2,Lista4),
+    ContAux is Cont+1,
+    myshuffleAux(Lista4,Xn1,ContAux,L).
+    
+mazoAleatorio(N,Mazo, MazoAl):-
+    myRandom(N, Seed),
+    myshuffle(Mazo,Seed,MazoAl),!.
+    
+cardsSet(LE,NumE,MaxC,Seed,CS):-
     NumEA is NumE-1,
     mazo(NumEA,L),
     length(L,X),
     MaxC = X,
     melemento(L,LE,L2),
-    limitarmazo(L2,MaxC,CS),
+    limitarmazo(L2,MaxC,CS1),
+    mazoAleatorio(Seed,CS1,CS),
     !.
 
-cardsSet(LE,NumE,MaxC,_,CS):-
+cardsSet(LE,NumE,MaxC,Seed,CS):-
     NumEA is NumE-1,
     mazo(NumEA,L),
     melemento(L,LE,L2),
-    limitarmaz(L2,MaxC,CS),
+    limitarmaz(L2,MaxC,Cs1),
+    mazoAleatorio(Seed,Cs1,CS),
     !.
     
 % Selectores Cartas
@@ -211,7 +263,7 @@ cardsSetMissingCards(Cartas,CS):-
     cardsSetNthCard(Cartas,0,C),
     length(C,X),
     cardsSetFindTotalCards(C,TC),
-    cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],X,TC,_,CS1),
+    cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],X,TC,_,CS1),
     subtract(CS1,Cartas,CS).
 
     %cardsSetToString
@@ -320,12 +372,20 @@ dobbleGameRegister(Nombre,GameIn,GameOut):-
     mymember(Nombre,Players),
     actualizarGame(NP,CardsSet,Mode,Players,Mesa,Estado,Fin,GameOut),!.
 
-dobbleGameRegister(_,GameIn,GameOut):-
+dobbleGameRegister(_,GameIn,GameIn):-
+    getGameNumPlayers(GameIn,NP),
+    integer(NP),
+    getGamePlayers(GameIn, Players),
+    length(Players,TP),
+    TP = NP,!.
+
+dobbleGameRegister(Name,GameIn,GameOut):-
     getGameNumPlayers(GameOut,NP),
     integer(NP),
     getGamecardsSet(GameOut,CardsSet),
     getGameMode(GameOut,Mode),
     getGamePlayers(GameOut, Players),
+    mymember(Name,Players),
     getGameMesa(GameOut,Mesa),
     getGameEstado(GameOut,Estado),
     getGameFin(GameOut,Fin),
@@ -376,3 +436,21 @@ dobbleGameWhoseTurnIsIt(G,NP):-
     listTurnos(Players,LT),
     max_list(LT,NMayor),
     turnoPlayer(Players,NMayor,NP).
+
+%dobbleGamePlay
+
+getCartasMesa(Mesa,Mesa).
+% Se quitan 2 cartas de la baraja para dejarlas en Mesa, ningun jugador utiliza turno.
+dobbleGamePlay(Game,Action,GameOut):-
+    getGameEstado(Game, Estado),
+    Estado = 0,
+    Action = null,
+    getGamecardsSet(Game,CardsSet),
+    twoCards(CardsSet,C2),
+    subtract(CardsSet,C2,CSGame),
+    getGameNumPlayers(Game,NP),
+    getGameMode(Game,Mode),
+    getGamePlayers(Game, Players),
+    getGameEstado(Game,Estado),
+    getGameFin(Game,Fin),
+    actualizarGame(NP,CSGame,Mode,Players,C2,Estado,Fin,GameOut),!.
