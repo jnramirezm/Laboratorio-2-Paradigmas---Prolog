@@ -30,9 +30,14 @@
  myRandom(Xn,Xn1)					aridad: 2
  myShuffle(Xs, Xn1, L)				aridad: 3
  mazoAleatorio(N, Mazo, MazoAl)		aridad: 3
+
+ Metas Primarias
+
+ ,Metas Secundarias
 */
 
 % fcard: Predicado que crea la primera carta del mazo.
+% Dominio: Entero, Carta
 fcard(N, L):-
         fcard(N, 1, L).
 
@@ -45,6 +50,7 @@ fcard(N, X, [X|L]):-
         fcard(N, X1, L).
 
 % ncards: Predicado que crea solamente una carta.
+% Entero, Entero, Carta
 ncards(N,J,L):-
         ncards(N, J, 1, 1, L).
 
@@ -58,6 +64,7 @@ ncards(N, J, K,X,[X|L]):-
         ncards(N, J, K1, X1, L).
 
 % ncards2: Predicado que utiliza la funcion ncards para crear las N cartas necesarias.
+% Entero , Lista de Cartas
 ncards2(N,L):-
     	ncards(N,1,L1),
         ncards2(N,2,L1,L).
@@ -71,7 +78,8 @@ ncards2(N,J,L1,[L1|L]):-
         J1 is J+1,
         ncards2(N, J1, L2, L).
 
-% nncards4: Predicado que crea solamente una carta de las NN cartas, utiliza la funcion auxiliar nncards4 de aridad 6
+% nncards4: Predicado que crea solamente una carta de las NN cartas, utiliza la funcion auxiliar nncards4 de aridad 6.
+% Dominio: Entero, Entero, Entero, Entero, Carta.
 nncards4(N,K,I,J,L):- 
     X1 is I+1,
     nncards4(N,K,I,J,X1,L).
@@ -85,7 +93,8 @@ nncards4(N,K,I,J,X1,[X1|L]):-
     X2 is (N+2+N*(K-1)+(((I-1)*(K-1)+J-1) mod N)),
     nncards4(N,K1,I,J,X2,L).
 
-% nncards3: Predicado que realiza el segundo ciclo, creando las N cartas necesarias para el mazo
+% nncards3: Predicado que realiza el segundo ciclo, creando las N cartas necesarias para el mazo.
+% Dominio: Entero, Entero, Entero, Lista de Cartas.
 nncards3(N,I,J,L):-
 	nncards4(N,1,I,J,L1),
 	nncards3(N,I,J,L1,L).
@@ -100,6 +109,7 @@ nncards3(N,I,J,L1,[L1|L]):-
     nncards3(N,I,J1,L2,L).
 
 % nncards2: Predicado que realiza el tercer ciclo, creando las NN cartas necesarias.
+% Dominio: Entero, Entero, Lista de Lista de Cartas
 nncards2(N,I,L):-
     nncards3(N,I,1,L1),
     nncards2(N,I,L1,L).
@@ -115,11 +125,13 @@ nncards2(N,I,L1,L):-
     nncards2(N,I1,L3,L).
 
 % nncards: Predicado que utiliza nncards2 para crear la primera carta e iniciar los ciclos para la creacion de las nnCards.
+% Dominio: Entero, Lista de Lista de Cartas.
 nncards(N,L):-
     nncards2(N,1,[X|L1]),
     append(L1,X,L).
 
 % mazo: Predicado que une las cartas de los predicados para crear el mazo.
+% Dominio: Entero, Lista de Cartas (Mazo).
 mazo(N,L):-
     fcard(N, L1),
     ncards2(N,L2),
@@ -128,6 +140,7 @@ mazo(N,L):-
     append(L3,L4,L).
 
 % limitarmaz: Predicacado utilizado para limitar el mazo correspondiente al Entero M recibido.
+% Dominio: Mazo, Entero, Mazo actualizado.
 limitarmaz(Mazo,M,L):-
     length(L,M),
     append(L,_,Mazo),
@@ -135,6 +148,7 @@ limitarmaz(Mazo,M,L):-
     M >= Y.
 
 % limitarmazo: Predicado para el segundo caso, cuando el M ingresado es una variable este entrega el total de cartas del mazo y el M correspodiente a este total.
+% Dominio: Mazo, Entero, Mazo actualizado.
 limitarmazo(Mazo,M,L):-
     length(L,M),
     append(L,_,Mazo),
@@ -144,10 +158,12 @@ limitarmazo(Mazo,M,L):-
 %[a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
 
 % intercambiarelementos: Predicado que entrega el elemento de la Lista L2 dado el indice I.
+% Dominio: Carta, Lista Simbolos, Simbolo
 intercambiarelementos([I|_],L2,V):-
     nth1(I,L2,V).
 
 % ie: Predicado que intercambia los elementos de la primera lista de la lista.
+% Dominio: Carta, Lista Simbolos, Carta actualizada
 ie(L1,LE,L):-
     intercambiarelementos(L1,LE,X),
     ieaux(L1,LE,X,L).
@@ -160,6 +176,7 @@ ieaux([_|L1],LE,X,[X|L]):-
     ieaux(L1,LE,E,L).
 
 % melemento: Predicado que actualiza los elementos de una Lista numerica en una Lista actualizada con una Lista dada.
+% Dominio: Mazo, Lista de Simbolos, Mazo actualizado con los simbolos.
 melemento([P|M],LE,L):-
     ie(P,LE,X),
     mazoelemento(M,LE,X,L).
@@ -171,17 +188,20 @@ mazoelemento(L1,_,L,[L]):-
     X2 = X1.
 
 % mazoelemento: Predicado que utiliza recursividad para llamar a ie el cual actualiza la carta, por lo tanto mazoelemento actualiza todas las cartas.
+% Dominio: Mazo, Lista de Simbolos, Simbolo, Lista de cartas actualizada.
 mazoelemento([I|M],LE,X,[X|L]):-
     ie(I,LE,LA),
     mazoelemento(M,LE,LA,L).
 
 % myRandom: Predicado que crea una semilla para su futuro uso en myShuffle.
+% Dominio: Entero, Seed(Entero).
 myRandom(Xn, Xn1):-
 AX is 110 * Xn,
 AXC is AX + 123,
 Xn1 is (AXC mod 226).
 
 % myShuffle: Predicado que actualiza el orden de las cartas dependiendo del entero Xn1 dado, es una funcion pseudorandomizada que utiliza la semilla de myRandom.
+% Dominio: Mazo, Entero, Mazo Actualizado
 myshuffle(Xs, Xn1, L) :-
    length(Xs, N),
    H is N - N // 2,
@@ -227,6 +247,7 @@ myshuffleAux(Lista,Xn1,Cont,L):-
     myshuffleAux(Lista4,Xn1,ContAux,L).
 
 % MazoAleatorio: Predicado que actualiza el Mazo dada la semilla del Random.
+% Dominio: Entero, Mazo, Mazo Actualizado.
 mazoAleatorio(N,Mazo, MazoAl):-
     myRandom(N, Seed),
     myshuffle(Mazo,Seed,MazoAl),!.
@@ -237,7 +258,8 @@ mazoAleatorio(N,Mazo, MazoAl):-
 
 /*
  Dominios:
- 	LE,CS,FirstCard,NextCards,P, M,C,Cartas:		Estructura Lista
+    CS:                                             CardsSet
+ 	LE,FirstCard,NextCards,P, M,C,Cartas:		Estructura Lista
 	NumE,MaxC,Seed,I:								Entero
     CS_STR,S1,S2,S3,X:								String
  
@@ -257,6 +279,8 @@ mazoAleatorio(N,Mazo, MazoAl):-
 		cardsSetToStringAux(Cartas,1,L,S3,CS_STR)	aridad 5    
 */
 
+% cardsSet: Predicado que crea el cardsSet para su luego uso, En este caso MaxC es una Variable y crea todas las cartas posibles.
+% Dominio: Lista de Elementos, NumE(Int), MaxC(Variable), Seed(Entero), CardsSet(Lista de cartas).
 cardsSet(LE,NumE,MaxC,Seed,CS):-
     NumEA is NumE-1,
     mazo(NumEA,L),
@@ -267,6 +291,8 @@ cardsSet(LE,NumE,MaxC,Seed,CS):-
     mazoAleatorio(Seed,CS1,CS),
     !.
 
+% cardsSet Caso 2: En este caso MaxC es un Entero y Limita el mazo con el maxC dado.
+% Dominio: Lista de Elementos, NumE(Int), MaxC(Int), Seed(Int), CardsSet.
 cardsSet(LE,NumE,MaxC,Seed,CS):-
     NumEA is NumE-1,
     mazo(NumEA,L),
@@ -275,12 +301,23 @@ cardsSet(LE,NumE,MaxC,Seed,CS):-
     mazoAleatorio(Seed,Cs1,CS),
     !.
     
-% Selectores Cartas
+% ------------------ ---------- SELECTORES  ------------------------------
+
+
+% getFirstCard: Predicado que entrega la primera carta del CardsSet.
+% Dominio: CardsSet, Carta.
 getFirstCard([FirstCard|_],FirstCard).
+
+% getNextCards: Predicado que entrega las siguientes cartas del CardsSet.
+% Dominio: CardsSet, Cartas.
 getNextCards([_|NextCards], NextCards).
 
+
+% ----------------------------- PERTENENCIA  -----------------------------
 %cardsSetIsDoble
-% Mismo tamano toda carta
+
+% mismoTamano: Predicado que Verifica que todas las cartas tengan el mismo tamano.
+% Dominio:  Mazo, Boolean.
 mismoTamano([_|[]],_):-
     !.
 mismoTamano([P|M], V):-
@@ -288,13 +325,15 @@ mismoTamano([P|M], V):-
     same_length(P,SC),
     mismoTamano(M,V).
     
-% No elemento en comun en la carta
+% noElementoComun: Predicado que verifica que la carta no tenga elementos en comun en ella.
+% Dominio: Mazo, Boolean.
 noElementoComun([],_).
 noElementoComun([P|M],X):-
     is_set(P),
     noElementoComun(M,X).
 
-% Interseccion = 1
+% interseccionCarta: Predicado que verifica que cada carta tenga 1 elemento en comun con las otras cartas.
+% Dominio: Mazo, Boolean.
 interseccionCarta([_|[]],_):-
     !.
 
@@ -304,30 +343,40 @@ interseccionCarta([P|M],V):-
 
 interseccionCartas(_,[_|[]],_):-
     !.
+
+% interseccionCarta: Predicado que realiza la recursion de las siguientes cartas, para compararla con la carta entregada al principio.
+% Dominio: Carta, Mazo, Boolean
 interseccionCartas(C,[P|M], V):-
     intersection(C,P,LI),
     length(LI,1),
     interseccionCartas(C,M,V).
 
+% cardsSetIsDobble: Predicado que Verifica que el cardsSet dado cumple con las reglas del Juego Dobble.
+% Dominio: CardsSet.
 cardsSetIsDobble(CS):- 
     mismoTamano(CS,_),
     noElementoComun(CS,_),
     interseccionCarta(CS,_).
 
-% cardsSetNthCard
+%------------------------------ OTROS PREDICADOS ------------------------
+
+% cardsSetNthCard: Predicado que entrega la carta numero N del cardsSet respecto al indice indicado.
+% Dominio: CardsSet, I(Int), Carta.
 cardsSetNthCard(CS,I,C):-
     length(CS,X),
     I < X,
     nth0(I,CS,C),
     !.
 
-%cardsSetFindTotalCards
+% cardsSetFindTotalCards: Predicado que entrega el numero total de cartas que puede tener un mazo dependiendo de la carta entregada.
+% Dominio: Carta, Int.
 cardsSetFindTotalCards(C,I):-
     length(C,N),
     I is (((N-1)*(N-1))+(N-1)+1),
     !.
 
-%cardsSetMissingCards
+% cardsSetMissingCards: Predicado que entrega las cartas faltantes de un CardsSet dado.
+% Dominio: Cartas, CardsSet.
 cardsSetMissingCards(Cartas,CS):-
     cardsSetIsDobble(Cartas),
     cardsSetNthCard(Cartas,0,C),
@@ -336,7 +385,9 @@ cardsSetMissingCards(Cartas,CS):-
     cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],X,TC,12,CS1),
     subtract(CS1,Cartas,CS).
 
-    %cardsSetToString
+    
+% cardsSetToString1: Predicado que cambia de Lista a string las cartas.
+% Dominio: CardsSet, CardsSet en string.
 cardsSetToString1(CS,CS_STR):-
     length(CS,L),
     getFirstCard(CS,C),
@@ -350,6 +401,8 @@ cardsSetToString1(CS,CS_STR):-
 cardsSetToStringAux(_,Cont,L,CS_STR,[CS_STR]):-
 	L = Cont,!.
 
+% cardsSetToStringAux: Predicado que cambia una carta a String para su posterior uso en cardsSetToString.
+% Dominio: CardsSet, Contandor(Int), Largo del cardset(Int), Carta en string, Cartas en string
 cardsSetToStringAux(CS,Cont,L,S,[S|CS_STR]):-
     Cont =< L,
     ContAux is Cont+1,
@@ -361,6 +414,8 @@ cardsSetToStringAux(CS,Cont,L,S,[S|CS_STR]):-
     string_concat(S1,S2,S3),
     cardsSetToStringAux(Cartas,ContAux,L,S3,CS_STR).
 
+% cardsSetToString: Predicado que Entrega el CardsSet en string.
+% Dominio: cardsSet, CardsSet en string.
 cardsSetToString(CS, CS_STR):-
     cardsSetToString1(CS,X),
     atomics_to_string(X,L1),
@@ -370,30 +425,239 @@ cardsSetToString(CS, CS_STR):-
 
 
 
-% TDA JUGADOR
-%
-%
-%
+/*-------------------------- TDA JUGADOR ----------------------------
+
+ Dominios:
+    
+    Name,NP:                                                    String
+    Cards,LT,LP,NextPlayers:                                    Estructura Lista
+    Turno, Puntos,I, NMayor, Cont,L, Int, MaxP:                 Entero
+    Player, PsA, PlayerOut, FirstPlayer:                        Player
+
+ Predicados:
+    
+    player(Name, Player)                                   aridad 2
+    getPlayerName(Player, Name)                            aridad 2
+    getPlayerCards(Player, Cards)                          aridad 2
+    getPlayerTurno(Player, Turno)                          aridad 2
+    getPlayerPuntos(Player, Puntos)                        aridad 2
+    getFirstPlayer(Players, FirstPlayer)                   aridad 2
+    getNextPlayers(Players, NextPlayers)                   aridad 2
+    actualizarPlayer(Name,Cards,Turno,Puntos,PlayerOut)    aridad 5
+    ActualizarPlayers(Players, Player, PsA)                aridad 3
+    listTurnos(Players, LT)                                aridad 2
+    turnoPlayer(Players,Name, NP)                          aridad 3
+    cantNMayor(Players, NMayor, Cont, L, I)                aridad 5
+    buscar(Players,Name,Player)                            aridad 3
+    listPuntos(Players, LP)                                aridad 3
+    esganador(Players,MaxP, Int)                           aridad 3
+    buscarganador(Players,MaxP,NP)                         aridad 3
+    buscarganadores(Players,MaxP,NP)                       aridad 3
+   
+ Metas Principales
+    player, actualizarPlayer, actualizarPlayers, buscar, buscarganador, buscarganadores.
+ Metas Secundarias
+    getPlayerName,getPlayerTurno,getPlayerPuntos, getFirstPlayer, getNextPlayers, listTurnos, turnoPlayer,
+    cantNMayor, listPuntos, esganador.
+
+*/
+%------------------------- REPRESENTACION ------------------------------
+/*
+
+ El TDA Player se representa a travez de una Lista, que contiene los elementos Name, Cards, Turno y Puntos, que es un requisito para
+ un buen rendimiento del player dentro del juego, las cartas que posee el players, el turno que lo podemos utilizar para saber de que
+ player es el turno de juego ,los puntos para saber quien es el ganador y por ultimo el  nombre que es unico para cada jugador.
+
+*/
+% ------------------------ CONSTRUCTOR PLAYER --------------------------
+
+% player: Predicado que crea un player valido.
+% Dominio: Name, Player.
 player(Name,[Name,[],0,0]):-
     string(Name),!.
 
-%Selectores
+% ------------------------ SELECTORES ----------------------------------
+
+% getPlayerName: Predicado que obtiene el nombre del Player.
+% Dominio: Player, Name.
 getPlayerName([Name|_],Name).
+
+% getPlayerCards: Predicado que obtiene las cartas del Player.
+% Dominio: Player, Cards.
 getPlayerCards([_,Cards,_,_],Cards).
+
+% getPlayerTurno: Predicado que obtiene el turno del Player.
+% Dominio: Player, Turno.
 getPlayerTurno([_,_,Turno,_],Turno).
+
+% getPlayerPuntos: Predicado que obtiene los Puntos del Player.
+% Dominios: Player, Puntos.
 getPlayerPuntos([_,_,_,Puntos],Puntos).
 
+% getFirstPlayer: Predicado que obtiene el primer Player de una lista de Jugadores.
+% Dominios: Players, Player.
 getFirstPlayer([Player|_],Player).
+
+% getNextPlayers: Predicado que obtiene desde el segundo hasta el ultimo Player de una lista de Jugadores.
+% Dominios: Players, NextPlayers.
 getNextPlayers([_|NextPlayers],NextPlayers).
 
-%Modificador
+% -------------------- MODIFICADORES --------------------------------------
+
+% actualizarPlayer: Predicado que actualiza un Player con los datos entregados.
+% Dominios: Name, Cards, Turno, Puntos, PlayerOut.
 actualizarPlayer(Name,Cards,Turno,Puntos,PlayerOut):-
     PlayerOut = [Name,Cards,Turno,Puntos],!.
+
+
+% actualizarPlayersAux: Predicado que se utiliza dentro de la funcion actualizarPlayers.
+% Caso donde se encuentra al jugador especificado lo actualiza en la lista de jugadores.
+% Dominio: Players, Player(Jugador a actualizar), TL (Tamano Lista(Int)), Cont, PsA.
+actualizarPlayersAux(Players,Player,TL,Cont,[Player|PsA]):-
+    Cont=< TL,
+  	getFirstPlayer(Players, FirstPlayer),
+    getNextPlayers(Players, NextPlayers),
+    getPlayerName(FirstPlayer, NameP),
+    getPlayerName(Player, Name),
+    Name = NameP,
+    ContAux is Cont+1,
+    actualizarPlayersAux(NextPlayers,Player,TL,ContAux,PsA).
+
+% Caso donde no se encuentra al jugador especificado, entonces anade al Jugador del momento a la lista PsA sin actualizar.
+% Dominio: Players, Player(Jugador a actualizar), TL, Cont, PsA.
+actualizarPlayersAux(Players,Player,TL,Cont,[FirstPlayer|PsA]):-
+    Cont=< TL,
+    getFirstPlayer(Players, FirstPlayer),
+    getNextPlayers(Players, NextPlayers),
+    ContAux is Cont+1,
+    actualizarPlayersAux(NextPlayers,Player,TL,ContAux,PsA).
+
+% Caso Base o de termino del predicado actualizarPlayersAux.
+actualizarPlayersAux(_,_,TL,Cont,[]):-
+    Cont=TL,!.
+
+% actualizarPlayers: Predicado que actualiza un Players en especifico en una lista de Players.
+% Dominio: Players, Player, PsA.
+actualizarPlayers(Players,Player,PsA):-
+    length(Players,TL),
+    actualizarPlayersAux(Players,Player,TL,0,PsA).
+
+% -------------------------- OTROS PREDICADOS ----------------------------
+
+
+% Caso basde de listTurnos, cuando la lista es vacia retorta la lista con los turnos de los jugadores.
+listTurnos([],[]):-!.
+
+% listTurnos: Predicado que entrega una lista con los turnos de todos los jugadores.
+% Dominio: Players, LT (Lista de Turnos).
+listTurnos(Players, [Turno|LT]):-
+    getFirstPlayer(Players, Player),
+    getPlayerTurno(Player, Turno),
+    getNextPlayers(Players,NextPlayers),
+    listTurnos(NextPlayers, LT).
+
+%
+%
+turnoPlayer([[Name,_,X,_]|_],N,Name):- 
+    X<N,!.
+
+turnoPlayer(Players,N,NP):-
+    getNextPlayers(Players, NextPlayers),
+    turnoPlayer(NextPlayers,N,NP).
+    
+%
+%
+cantNMayor([],_,Cont,L,Cont):-
+    Cont = L,
+    !.
+
+%
+%
+cantNMayor(Players,NMayor,Cont,L,I):-
+    getFirstPlayer(Players,P),
+    getNextPlayers(Players, NextPlayers),
+    getPlayerTurno(P,T),
+    T = NMayor,
+    ContAux is Cont+1,
+    cantNMayor(NextPlayers, NMayor,ContAux,L, I).
+
+%
+%
+cantNMayor(Players, NMayor,Cont,L ,I):-
+    getNextPlayers(Players, NextPlayers),
+    cantNMayor(NextPlayers,NMayor,Cont,L,I).
+
+%
+%
+buscar([[Name,X,Y,Z]|_],Name,[Name,X,Y,Z]):-!.
+buscar(Players,Name,P):-
+   getNextPlayers(Players,NextPlayers),
+   buscar(NextPlayers,Name,P).
+
+%
+%
+listPuntos([],[]):-!.
+listPuntos(Players, [Puntos|LT]):-
+    getFirstPlayer(Players, Player),
+    getPlayerPuntos(Player, Puntos),
+    getNextPlayers(Players,NextPlayers),
+    listPuntos(NextPlayers, LT).
+
+%
+esganadorAux(Players,MaxP,Int):-
+    esganador(Players,MaxP,Int),!.
+
+%
+esganador([],_,0):-!.
+
+%
+%
+esganador([[_,_,_,X]|NextPlayers],X,Int):-
+    esganador(NextPlayers,X,IntAux),
+    Int is IntAux+1.
+%
+%
+esganador([_|NextPlayers], MaxP, Int):-
+    esganador(NextPlayers,MaxP,Int).
+
+%
+%
+buscarganador([[NP,_,_,MaxP]|_],MaxP,NP):-!.
+
+%
+%
+buscarganador([_|NextPlayers],MaxP,N):-
+    buscarganador(NextPlayers,MaxP,N).
+
+%
+%
+buscarganadores([],_,[]):-!.
+
+%
+%
+buscarganadores([[NP,_,_,MaxP]|NextPlayers],MaxP,[NP|L]):-
+    buscarganadores(NextPlayers,MaxP,L).
+
+%
+%
+buscarganadores([_|NextPlayers],MaxP,L):-
+    buscarganadores(NextPlayers,MaxP,L).
+
+
+
+
+/* ------------------------------ TDA GAME --------------------------------
+
+
+
+*/
+
+
 %TDA Game
 %
 %
 %
-game(NumPlayers,CardsSet,Mode,_,[NumPlayers,CardsSet,Mode,[],[],0,""]):-
+dobbleGame(NumPlayers,CardsSet,Mode,_,[NumPlayers,CardsSet,Mode,[],[],0,""]):-
     cardsSetIsDobble(CardsSet),
     integer(NumPlayers),!.
 
@@ -443,35 +707,6 @@ dobbleGameRegister(Name,GameIn,GameOut):-
     actualizarGame(NP,CardsSet,Mode,Players,Mesa,Estado,Fin,GameIn),!.
 
 %whoseTurnIsIt
-listTurnos([],[]):-!.
-listTurnos(Players, [Turno|LT]):-
-    getFirstPlayer(Players, Player),
-    getPlayerTurno(Player, Turno),
-    getNextPlayers(Players,NextPlayers),
-    listTurnos(NextPlayers, LT).
-
-turnoPlayer([[Name,_,X,_]|_],N,Name):- 
-    X<N,!.
-
-turnoPlayer(Players,N,NP):-
-    getNextPlayers(Players, NextPlayers),
-    turnoPlayer(NextPlayers,N,NP).
-    
-cantNMayor([],_,Cont,L,Cont):-
-    Cont = L,
-    !.
-
-cantNMayor(Players,NMayor,Cont,L,I):-
-    getFirstPlayer(Players,P),
-    getNextPlayers(Players, NextPlayers),
-    getPlayerTurno(P,T),
-    T = NMayor,
-    ContAux is Cont+1,
-    cantNMayor(NextPlayers, NMayor,ContAux,L, I).
-
-cantNMayor(Players, NMayor,Cont,L ,I):-
-    getNextPlayers(Players, NextPlayers),
-    cantNMayor(NextPlayers,NMayor,Cont,L,I).
 
 dobbleGameWhoseTurnIsIt(G,NP):-
     getGamePlayers(G,Players),
@@ -495,64 +730,6 @@ twoCards(CS,[C,C1]):-
     getFirstCard(CS,C),
     getNextCards(CS,NextCards),
     getFirstCard(NextCards,C1),!.
-
-buscar([[Name,X,Y,Z]|_],Name,[Name,X,Y,Z]):-!.
-buscar(Players,Name,P):-
-   getNextPlayers(Players,NextPlayers),
-   buscar(NextPlayers,Name,P).
-
-
-
-actualizarPlayersAux(Players,Player,TL,Cont,[Player|PsA]):-
-    Cont=< TL,
-  	getFirstPlayer(Players, FirstPlayer),
-    getNextPlayers(Players, NextPlayers),
-    getPlayerName(FirstPlayer, NameP),
-    getPlayerName(Player, Name),
-    Name = NameP,
-    ContAux is Cont+1,
-    actualizarPlayersAux(NextPlayers,Player,TL,ContAux,PsA).
-
-actualizarPlayersAux(Players,Player,TL,Cont,[FirstPlayer|PsA]):-
-    Cont=< TL,
-    getFirstPlayer(Players, FirstPlayer),
-    getNextPlayers(Players, NextPlayers),
-    ContAux is Cont+1,
-    actualizarPlayersAux(NextPlayers,Player,TL,ContAux,PsA).
-                     
-actualizarPlayersAux(_,_,TL,Cont,[]):-
-    Cont=TL,!.
-
-actualizarPlayers(Players,Player,PsA):-
-    length(Players,TL),
-    actualizarPlayersAux(Players,Player,TL,0,PsA).
-
-listPuntos([],[]):-!.
-listPuntos(Players, [Puntos|LT]):-
-    getFirstPlayer(Players, Player),
-    getPlayerPuntos(Player, Puntos),
-    getNextPlayers(Players,NextPlayers),
-    listPuntos(NextPlayers, LT).
-
-esganadorAux(Players,MaxP,Int):-
-    esganador(Players,MaxP,Int),!.
-
-esganador([],_,0):-!.
-esganador([[_,_,_,X]|NextPlayers],X,Int):-
-    esganador(NextPlayers,X,IntAux),
-    Int is IntAux+1.
-esganador([_|NextPlayers], MaxP, Int):-
-    esganador(NextPlayers,MaxP,Int).
-
-buscarganador([[NP,_,_,MaxP]|_],MaxP,NP):-!.
-buscarganador([_|NextPlayers],MaxP,N):-
-    buscarganador(NextPlayers,MaxP,N).
-
-buscarganadores([],_,[]):-!.
-buscarganadores([[NP,_,_,MaxP]|NextPlayers],MaxP,[NP|L]):-
-    buscarganadores(NextPlayers,MaxP,L).
-buscarganadores([_|NextPlayers],MaxP,L):-
-    buscarganadores(NextPlayers,MaxP,L).
 
 getCartasMesa(Mesa,Mesa).
 
@@ -701,3 +878,20 @@ dobbleGamePlay(Game, [Action,Name,_], GameOut):-
 dobbleGamePlay(Game, _, Game):-
     getGameEstado(Game, Estado),
     Estado = 1,!.
+
+%GameStatus
+dobbleGameStatus(Game,Str):-
+    getGameEstado(Game,Estado),
+    Estado = 0,
+    string_concat("\nEl Estado de Juego es :", " En Partida", Str),!.
+dobbleGameStatus(Game,Str):-
+    getGameEstado(Game,Estado),
+    Estado = 1,
+    string_concat("\nEl Estado de Juego es :", " Finalizado", Str),!.
+
+%GameScore
+
+dobbleGameScore(Game,Name, Score):-
+    getGamePlayers(Game,Players),
+    buscar(Players,Name, Player),
+	getPlayerPuntos(Player, Score),!. 
