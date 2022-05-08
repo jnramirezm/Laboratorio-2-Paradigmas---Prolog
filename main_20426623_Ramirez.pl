@@ -1,4 +1,38 @@
-% Primera carta
+/*-----------------------------------
+  _          _      ____      ____          
+ | |        / \    | __ )    |___ \      
+ | |       / _ \   |  _ \      __) |  
+ | |___   / ___ \  | |_) |    / __/    
+ |_____| /_/   \_\ |____/    |_____|   
+
+-------------------------------------
+
+ Juan Ramirez Montero
+ 
+ ----------------- TDA CARDSSET Constructor ------------
+ 
+ Dominios:
+ N, J, K, X, M, Xn,Xn1:	 				Enteros
+ L, L1, Mazo, Carta, LE, Xs, MazoL: 	Estructura Lista
+ v: 					 				Atomic
+ 
+ Predicados:
+ 
+ fcard(N, L)						aridad: 2
+ ncards2(N, L)						aridad: 2
+ nncards(N, L)						aridad: 2
+ mazo(N, L)							aridad: 2 
+ limitarmazo(Mazo,M,L)				aridad: 3
+ intercambiarelementos(L, LE, V)	aridad: 3
+ ie(L1,LE,L)						aridad: 3
+ melemento(Mazo,LE,L)				aridad: 3
+ mazoelemento(Carta,LE,l)			aridad: 3
+ myRandom(Xn,Xn1)					aridad: 2
+ myShuffle(Xs, Xn1, L)				aridad: 3
+ mazoAleatorio(N, Mazo, MazoAl)		aridad: 3
+*/
+
+% fcard: Predicado que crea la primera carta del mazo.
 fcard(N, L):-
         fcard(N, 1, L).
 
@@ -10,8 +44,7 @@ fcard(N, X, [X|L]):-
         X1 is X + 1,
         fcard(N, X1, L).
 
-% Primeras N cartas
-
+% ncards: Predicado que crea solamente una carta.
 ncards(N,J,L):-
         ncards(N, J, 1, 1, L).
 
@@ -24,6 +57,7 @@ ncards(N, J, K,X,[X|L]):-
         K1 is K + 1,
         ncards(N, J, K1, X1, L).
 
+% ncards2: Predicado que utiliza la funcion ncards para crear las N cartas necesarias.
 ncards2(N,L):-
     	ncards(N,1,L1),
         ncards2(N,2,L1,L).
@@ -37,8 +71,7 @@ ncards2(N,J,L1,[L1|L]):-
         J1 is J+1,
         ncards2(N, J1, L2, L).
 
-%nncards
-
+% nncards4: Predicado que crea solamente una carta de las NN cartas, utiliza la funcion auxiliar nncards4 de aridad 6
 nncards4(N,K,I,J,L):- 
     X1 is I+1,
     nncards4(N,K,I,J,X1,L).
@@ -52,6 +85,7 @@ nncards4(N,K,I,J,X1,[X1|L]):-
     X2 is (N+2+N*(K-1)+(((I-1)*(K-1)+J-1) mod N)),
     nncards4(N,K1,I,J,X2,L).
 
+% nncards3: Predicado que realiza el segundo ciclo, creando las N cartas necesarias para el mazo
 nncards3(N,I,J,L):-
 	nncards4(N,1,I,J,L1),
 	nncards3(N,I,J,L1,L).
@@ -65,6 +99,7 @@ nncards3(N,I,J,L1,[L1|L]):-
     nncards4(N,1,I,J1,L2),
     nncards3(N,I,J1,L2,L).
 
+% nncards2: Predicado que realiza el tercer ciclo, creando las NN cartas necesarias.
 nncards2(N,I,L):-
     nncards3(N,I,1,L1),
     nncards2(N,I,L1,L).
@@ -79,12 +114,12 @@ nncards2(N,I,L1,L):-
     append(L1,L2,L3),
     nncards2(N,I1,L3,L).
 
+% nncards: Predicado que utiliza nncards2 para crear la primera carta e iniciar los ciclos para la creacion de las nnCards.
 nncards(N,L):-
     nncards2(N,1,[X|L1]),
     append(L1,X,L).
 
-% Creacion mazo
-
+% mazo: Predicado que une las cartas de los predicados para crear el mazo.
 mazo(N,L):-
     fcard(N, L1),
     ncards2(N,L2),
@@ -92,33 +127,39 @@ mazo(N,L):-
     nncards(N,L4),
     append(L3,L4,L).
 
-% Utilizacion maxC
-limitarmazo(Mazo,M,L):-
-    length(L,M),
-    append(L,_,Mazo),
-    length(L,Y),
-    M = Y.
-
+% limitarmaz: Predicacado utilizado para limitar el mazo correspondiente al Entero M recibido.
 limitarmaz(Mazo,M,L):-
     length(L,M),
     append(L,_,Mazo),
     length(L,Y),
     M >= Y.
 
-intercambiarelementos([I|_],L2,X):-
-    nth1(I,L2,X).
+% limitarmazo: Predicado para el segundo caso, cuando el M ingresado es una variable este entrega el total de cartas del mazo y el M correspodiente a este total.
+limitarmazo(Mazo,M,L):-
+    length(L,M),
+    append(L,_,Mazo),
+    length(L,Y),
+    M = Y.
 
-ie(L1,L2,L):-
-    intercambiarelementos(L1,L2,X),
-    ieaux(L1,L2,X,L).
+%[a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
+
+% intercambiarelementos: Predicado que entrega el elemento de la Lista L2 dado el indice I.
+intercambiarelementos([I|_],L2,V):-
+    nth1(I,L2,V).
+
+% ie: Predicado que intercambia los elementos de la primera lista de la lista.
+ie(L1,LE,L):-
+    intercambiarelementos(L1,LE,X),
+    ieaux(L1,LE,X,L).
 
 ieaux(L1,_,L,[L]):-
     same_length(L1,[L]), !.
 
-ieaux([_|L1],L2,X,[X|L]):-
-    intercambiarelementos(L1,L2,E),
-    ieaux(L1,L2,E,L).
+ieaux([_|L1],LE,X,[X|L]):-
+    intercambiarelementos(L1,LE,E),
+    ieaux(L1,LE,E,L).
 
+% melemento: Predicado que actualiza los elementos de una Lista numerica en una Lista actualizada con una Lista dada.
 melemento([P|M],LE,L):-
     ie(P,LE,X),
     mazoelemento(M,LE,X,L).
@@ -128,16 +169,19 @@ mazoelemento(L1,_,L,[L]):-
     length([L],X1),
     X2 is X+1,
     X2 = X1.
-    
-mazoelemento([I|M],L2,X,[X|L]):-
-    ie(I,L2,LA),
-    mazoelemento(M,L2,LA,L).
 
+% mazoelemento: Predicado que utiliza recursividad para llamar a ie el cual actualiza la carta, por lo tanto mazoelemento actualiza todas las cartas.
+mazoelemento([I|M],LE,X,[X|L]):-
+    ie(I,LE,LA),
+    mazoelemento(M,LE,LA,L).
+
+% myRandom: Predicado que crea una semilla para su futuro uso en myShuffle.
 myRandom(Xn, Xn1):-
 AX is 110 * Xn,
 AXC is AX + 123,
 Xn1 is (AXC mod 226).
 
+% myShuffle: Predicado que actualiza el orden de las cartas dependiendo del entero Xn1 dado, es una funcion pseudorandomizada que utiliza la semilla de myRandom.
 myshuffle(Xs, Xn1, L) :-
    length(Xs, N),
    H is N - N // 2,
@@ -149,6 +193,8 @@ myshuffle(Xs, Xn1, L) :-
 
 myshuffleAux(Lista4,Xn1,Cont,Lista4):-
     Cont = Xn1,!.
+
+% Cuando el modulo 2 del contador es 0, corta la lista por la mitad y las cambia de lado (Parte Superior pasa a inferior e inferior a superior).
 myshuffleAux(Lista,Xn1,Cont,L):-
     Cont =< Xn1,
     X is Cont mod 2,
@@ -162,6 +208,7 @@ myshuffleAux(Lista,Xn1,Cont,L):-
     ContAux is Cont+1,
     myshuffleAux(Lista2,Xn1,ContAux,L).
 
+% Si el mod no es 2, la mitad de la mitad superior de la lista cambia de lugar hacia el medio de la lista.
 myshuffleAux(Lista,Xn1,Cont,L):-
     Cont =< Xn1,
     length(Lista, N),
@@ -178,11 +225,37 @@ myshuffleAux(Lista,Xn1,Cont,L):-
     append(L3,LSup2,Lista4),
     ContAux is Cont+1,
     myshuffleAux(Lista4,Xn1,ContAux,L).
-    
+
+% MazoAleatorio: Predicado que actualiza el Mazo dada la semilla del Random.
 mazoAleatorio(N,Mazo, MazoAl):-
     myRandom(N, Seed),
     myshuffle(Mazo,Seed,MazoAl),!.
-    
+
+/*  
+%cardsSet [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
+------------------ TDA cardsSet -------------------------
+
+/*
+ Dominios:
+ 	LE,CS,FirstCard,NextCards,P, M,C,Cartas:		Estructura Lista
+	NumE,MaxC,Seed,I:								Entero
+    CS_STR,S1,S2,S3,X:								String
+ 
+ Predicados:
+ 	cardsSet(LE,NumE,MaxC,Seed,CS)					aridad 5
+	getFirstCard(CS,FirstCard)						aridad 2
+    getNextCards(CS,NextCards)						aridad 2
+    cardsSetIsDobble(CS)							aridad 1
+    	interseccionCartas(C,CS, V)					aridad 3
+        noElementoComun(CS,X)						aridad 2
+        mismoTamano(CS,V)							aridad 2
+    cardsSetNthCard(CS,I,C)							aridad 3
+    cardsSetFindTotalCards(C,I)						aridad 2
+    cardsSetMissingCards(Cartas,CS)					aridad 2
+    cardsSetToString(CS, CS_STR)					aridad 2
+    	cardsSetToString1(CS,CS_STR)				aridad 2
+		cardsSetToStringAux(Cartas,1,L,S3,CS_STR)	aridad 5    
+*/
 
 cardsSet(LE,NumE,MaxC,Seed,CS):-
     NumEA is NumE-1,
@@ -203,7 +276,7 @@ cardsSet(LE,NumE,MaxC,Seed,CS):-
     !.
     
 % Selectores Cartas
-getFirstCard([First|_],First).
+getFirstCard([FirstCard|_],FirstCard).
 getNextCards([_|NextCards], NextCards).
 
 %cardsSetIsDoble
@@ -295,6 +368,8 @@ cardsSetToString(CS, CS_STR):-
     string_concat(S1,L1 ,S2),
     string_concat(S2, "\n -------- FIN --------", CS_STR).
 
+
+
 % TDA JUGADOR
 %
 %
@@ -354,27 +429,6 @@ dobbleGameRegister(Nombre,GameIn,GameOut):-
     TP < NP,
     not(mymember(Nombre,Players)),
     actualizarGame(NP,CardsSet,Mode,[P|Players],Mesa,Estado,Fin,GameOut),!.
-
-dobbleGameRegister(Nombre,GameIn,GameOut):-
-    getGameNumPlayers(GameIn,NP),
-    integer(NP),
-    getGamecardsSet(GameIn,CardsSet),
-    getGameMode(GameIn,Mode),
-    getGamePlayers(GameIn, Players),
-    length(Players,TP),
-    getGameMesa(GameIn,Mesa),
-    getGameEstado(GameIn,Estado),
-    getGameFin(GameIn,Fin),
-    TP < NP,
-    mymember(Nombre,Players),
-    actualizarGame(NP,CardsSet,Mode,Players,Mesa,Estado,Fin,GameOut),!.
-
-dobbleGameRegister(_,GameIn,GameIn):-
-    getGameNumPlayers(GameIn,NP),
-    integer(NP),
-    getGamePlayers(GameIn, Players),
-    length(Players,TP),
-    TP = NP,!.
 
 dobbleGameRegister(Name,GameIn,GameOut):-
     getGameNumPlayers(GameOut,NP),
@@ -504,9 +558,13 @@ getCartasMesa(Mesa,Mesa).
 
 % Se quitan 2 cartas de la baraja para dejarlas en Mesa, ningun jugador utiliza turno.
 dobbleGamePlay(Game,Action,GameOut):-
+    getGameMode(Game,Mode),
+    Mode = "Stack",
     getGameEstado(Game, Estado),
     Estado = 0,
     Action = null,
+    getGameMesa(Game,Mesa),
+    length(Mesa, 0),
     getGamecardsSet(Game,CardsSet),
     twoCards(CardsSet,C2),
     subtract(CardsSet,C2,CSGame),
@@ -520,6 +578,8 @@ dobbleGamePlay(Game,Action,GameOut):-
 % El jugador que posee el turno realiza la accion Pass, utilizando si turno y la baraja del juego
 % se le anaden las cartas de la mesa
 dobbleGamePlay(Game,Action,GameOut):-
+    getGameMode(Game,Mode),
+    Mode = "Stack",
     getGameEstado(Game, Estado),
     Estado = 0,
     Action = pass,
@@ -557,8 +617,8 @@ dobbleGamePlay(Game,Action, GameOut):-
     buscarganador(Players,MaxPunto,Name),
     getGameNumPlayers(Game,NumP),
     getGamecardsSet(Game,CardsSet),
-    getGameMode(Game,Mode),
     getGameMesa(Game,Mesa),
+    getGameMode(Game,Mode),
     string_concat("El Ganador es = ", Name, Fin),
     actualizarGame(NumP,CardsSet,Mode,Players,Mesa,1,Fin,GameOut),!.
 
@@ -578,6 +638,64 @@ dobbleGamePlay(Game,Action, GameOut):-
     atomics_to_string(LNames,Names),
     string_concat("Hay Empate entre = ", Names, Fin),
     actualizarGame(NumP,CardsSet,Mode,Players,Mesa,1,Fin,GameOut),!.
+
+% Caso donde Mesa si tiene cartas, y 
+% Jugador acierta en decir el elemento
+dobbleGamePlay(Game, [Action,Name,Element], GameOut):-
+    getGameMode(Game,Mode),
+    Mode = "Stack",
+    getGameEstado(Game, Estado),
+    Estado = 0,
+    Action = spotIt,
+    dobbleGameWhoseTurnIsIt(Game,N),
+    Name = N,
+    getGameMesa(Game,Mesa),
+    not(length(Mesa,0)),
+    getCartasMesa(Mesa,[C1,C2]),
+    intersection(C1,C2, [Elem]),
+    Elem = Element,
+    getGamePlayers(Game,Players),
+    buscar(Players, Name, Player),
+    %getPlayerCards(Player, Cards),
+    getPlayerTurno(Player, Turno),
+    getPlayerPuntos(Player, Puntos),
+	TurnoAux is Turno+1,
+    PuntosAux is Puntos+1,
+    actualizarPlayer(Name,Mesa,TurnoAux,PuntosAux,PlayerActualizado),
+    actualizarPlayers(Players,PlayerActualizado,PlayersActualizado),
+    getGameNumPlayers(Game, NumPlayers),
+    getGamecardsSet(Game, CardsSet),
+    getGameEstado(Game, Estado),
+    getGameFin(Game, Fin),
+    actualizarGame(NumPlayers,CardsSet,Mode,PlayersActualizado,[],Estado,Fin,GameOut),!.
+
+% Caso donde Mesa si tiene cartas, y
+% Jugador falla en decir el elemento
+dobbleGamePlay(Game, [Action,Name,_], GameOut):-
+    getGameMode(Game,Mode),
+    Mode = "Stack",
+    getGameEstado(Game, Estado),
+    Estado = 0,
+    Action = spotIt,
+    dobbleGameWhoseTurnIsIt(Game,N),
+    Name = N,
+    getGameMesa(Game,Mesa),
+    not(length(Mesa,0)),
+    getCartasMesa(Mesa,[C1,C2]),
+    intersection(C1,C2, [_]),
+    getGamePlayers(Game,Players),
+    buscar(Players, Name, Player),
+    getPlayerCards(Player, Cards),
+    getPlayerTurno(Player, Turno),
+    getPlayerPuntos(Player, Puntos),
+	TurnoAux is Turno+1,
+    actualizarPlayer(Name,Cards,TurnoAux,Puntos,PlayerActualizado),
+    actualizarPlayers(Players,PlayerActualizado,PlayersActualizado),
+    getGameNumPlayers(Game, NumPlayers),
+    getGamecardsSet(Game, CardsSet),
+    getGameEstado(Game, Estado),
+    getGameFin(Game, Fin),
+    actualizarGame(NumPlayers,CardsSet,Mode,PlayersActualizado,Mesa,Estado,Fin,GameOut),!.
 
 % Si El juego esta Finalizado el Juego queda igual.
 dobbleGamePlay(Game, _, Game):-
