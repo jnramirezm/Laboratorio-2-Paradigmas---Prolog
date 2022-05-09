@@ -42,6 +42,8 @@
  Metas Secundarias
  fcard,ncards2,nncards, intercambiarelementos,ie,myRandom,myShuffle.
 
+ --------------------------------------------------------------
+
 */
 
 % fcard: Predicado que crea la primera carta del mazo.
@@ -58,7 +60,7 @@ fcard(N, X, [X|L]):-
         fcard(N, X1, L).
 
 % ncards: Predicado que crea solamente una carta.
-% Entero, Entero, Carta
+% Dominio: Entero, Entero, Carta
 ncards(N,J,L):-
         ncards(N, J, 1, 1, L).
 
@@ -72,7 +74,7 @@ ncards(N, J, K,X,[X|L]):-
         ncards(N, J, K1, X1, L).
 
 % ncards2: Predicado que utiliza la funcion ncards para crear las N cartas necesarias.
-% Entero , Lista de Cartas
+% Dominio: Entero , Lista de Cartas
 ncards2(N,L):-
     	ncards(N,1,L1),
         ncards2(N,2,L1,L).
@@ -152,7 +154,7 @@ mazo(N,L):-
 limitarmaz(Mazo,MaxC,L):-
     length(L,MaxC),
     length(Mazo, LM),
-    LM < MaxC,
+    LM > MaxC,
     append(L,_,Mazo),
     length(L,Y),
     MaxC >= Y.
@@ -272,7 +274,8 @@ mazoAleatorio(N,Mazo, MazoAl):-
 
  
 %cardsSet [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]
-% ------------------ TDA cardsSet -------------------------
+
+% -------------------------------------- TDA CARDSSET ------------------------------------------
 
 /*
  Dominios:
@@ -297,9 +300,12 @@ mazoAleatorio(N,Mazo, MazoAl):-
 		cardsSetToStringAux(Cartas,1,L,S3,CS_STR)	aridad 5  
 
  Metas Primarias:
-    cardsSet, cardsSetIsDobble, cardsSetNthCard, cardsSetFindTotalCards, cardsSetToString.
+    cardsSet, cardsSetIsDobble, cardsSetNthCard, cardsSetFindTotalCards, cardsSetMissingCards, cardsSetToString.
  Metas Secundarias:
     getFirstCard, getNextCardsm interseccionCartas, noElementoComun, mismoTamano, cardsSetToString1, cardsSetToStringAux.
+
+ ------------------------------------------------------------------------------------------------
+
 */
 
 % cardsSet Caso 2: En este caso MaxC es un Entero y Limita el mazo con el maxC dado.
@@ -400,6 +406,7 @@ cardsSetNthCard(CS,I,C):-
 % Dominio: Carta, Int.
 cardsSetFindTotalCards(C,TotalCards):-
     is_list(C),
+    not(length(C,0)),
     length(C,N),
     TotalCards is (((N-1)*(N-1))+(N-1)+1),
     !.
@@ -414,6 +421,7 @@ cardsSetMissingCards(Cartas,CS):-
     member(Element,[a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz]),
     cardsSetFindTotalCards(C,TC),
     cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],X,TC,12,CS1),
+    cardsSetIsDobble(CS1),
     subtract(CS1,Cartas,CS).
 
     
@@ -491,11 +499,15 @@ cardsSetToString(CS, CS_STR):-
         playersToStringAux(Players,Player,L, Cont, PStr)   aridad 5
    
  Metas Principales
+
     player, actualizarPlayer, actualizarPlayers, turnoPlayer, buscar, buscarganador, buscarganadoresm playersToString.
+
  Metas Secundarias
+
     getPlayerName,getPlayerTurno,getPlayerPuntos, getFirstPlayer, getNextPlayers, listTurnos,
     cantNMayor, listPuntos, esganador, playersToStringAux, esganadorAux.
 
+------------------------------------------------------------------------
 */
 %------------------------- REPRESENTACION ------------------------------
 /*
@@ -703,7 +715,7 @@ playersToString(Players,PStr):-
     atomics_to_string(Cards, CardsStr),
     atomics_to_string([Turno], TurnoStr),
     atomics_to_string([Puntos], PuntosStr),
-    string_concat("Nombre Jugador: ", Name, S1),
+    string_concat(" \n Nombre Jugador: ", Name, S1),
     string_concat(S1, "  / Cartas Jugador : ", S2),
     string_concat(S2, CardsStr, S3),
     string_concat(S3, "  / Turnos Jugador : ", S4),
@@ -725,7 +737,7 @@ playersToString(Players,PStr):-
     cardsSetToString(Cards, CardsStr),
     atomics_to_string([Turno], TurnoStr),
     atomics_to_string([Puntos], PuntosStr),
-    string_concat("Nombre Jugador: ", Name, S1),
+    string_concat("\n Nombre Jugador: ", Name, S1),
     string_concat(S1, "  / Cartas Jugador : ", S2),
     string_concat(S2, CardsStr, S3),
     string_concat(S3, "  / Turnos Jugador : ", S4),
@@ -753,7 +765,7 @@ playersToStringAux(Players,Player,L,Cont,[Player|PStr]):-
     atomics_to_string(Cards, CardsStr),
     atomics_to_string([Turno], TurnoStr),
     atomics_to_string([Puntos], PuntosStr),
-    string_concat("Nombre Jugador: ", Name, S1),
+    string_concat("\n Nombre Jugador: ", Name, S1),
     string_concat(S1, "  / Cartas Jugador : ", S2),
     string_concat(S2, CardsStr, S3),
     string_concat(S3, "  / Turnos Jugador : ", S4),
@@ -776,7 +788,7 @@ playersToStringAux(Players,Player,L,Cont,[Player|PStr]):-
     cardsSetToString(Cards, CardsStr),
     atomics_to_string([Turno], TurnoStr),
     atomics_to_string([Puntos], PuntosStr),
-    string_concat("Nombre Jugador: ", Name, S1),
+    string_concat("\n Nombre Jugador: ", Name, S1),
     string_concat(S1, "  / Cartas Jugador : ", S2),
     string_concat(S2, CardsStr, S3),
     string_concat(S3, "  / Turnos Jugador : ", S4),
@@ -828,7 +840,9 @@ playersToStringAux(Players,Player,L,Cont,[Player|PStr]):-
     getGameNumPlayers, getGamecardsSet, getGameMode, getGamePlayers, getGameMesa, getCartasMesa, getGameEstado, getGameFin,
     actualizarGame,mymember, twoCards.
 
+----------------------------------------------------------------------------------------
 */
+
 % ---------------------------- REPRESENTACION GAME -------------------------------------
 /*
 
@@ -1127,12 +1141,14 @@ dobbleGamePlay(Game, _, Game):-
 % Caso: Donde Estado es igual a 0, entonces el  juego sigue en partida.
 % Dominio: Game, Str.
 dobbleGameStatus(Game,Str):-
+    not(var(Game)),
     getGameEstado(Game,Estado),
     Estado = 0,
     string_concat("\nEl Estado de Juego es :", " En Partida", Str),!.
 
 % Caso donde el Estado es igual 1, por lo tanto el juego ya ha terminado.
 dobbleGameStatus(Game,Str):-
+    not(var(Game)),
     getGameEstado(Game,Estado),
     Estado = 1,
     string_concat("\nEl Estado de Juego es :", " Finalizado", Str),!.
@@ -1142,6 +1158,8 @@ dobbleGameStatus(Game,Str):-
 % dobbleGameScore: Predicado que entrega el Score de un Jugador el cual se entrega su nombre por el argumento.
 % Dominio: Game, Name, Score.
 dobbleGameScore(Game,Name, Score):-
+    string(Name),
+    var(Score),
     getGamePlayers(Game,Players),
     buscar(Players,Name, Player),
 	getPlayerPuntos(Player, Score),!. 
@@ -1152,6 +1170,7 @@ dobbleGameScore(Game,Name, Score):-
 % Caso: Caso cuando el length de la Mesa es igual a 0, por lo que se utiliza atomics to string para hacerlo un string.
 % Dominio: Game, Str.
 dobbleGameToString(Game, Str):-
+    is_list(Game),
     getGameNumPlayers(Game, NumPlayers),
     getGamecardsSet(Game, CardsSet),
     getGameMode(Game, Mode),
@@ -1184,6 +1203,7 @@ dobbleGameToString(Game, Str):-
 
 % Caso cuando la Mesa si posee cartas, por lo tanto se utiliza cardsSet to String (Ya que la Mesa posee cartas), asi no ocurren errores.
 dobbleGameToString(Game, Str):-
+    is_list(Game),
     getGameNumPlayers(Game, NumPlayers),
     getGamecardsSet(Game, CardsSet),
     getGameMode(Game, Mode),
@@ -1220,13 +1240,13 @@ dobbleGameToString(Game, Str):-
 --------------------------- Ejemplos Predicado CardsSet -------------------------------
 
 % Ej: se crea el set de Cartas con 8 elementos, y con una variable, esta variable da el total de cartas en el mazo.
-% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,X,26,CS)
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,X,26,CS).
 
 % Ej: se crea un set de cartas pero este estara limitado hasta 35 cartas.
-% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,35,51,CS2)
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,35,51,CS2).
 
 % Ej: se crea un set de cartas de 5 elementos con su totalidad de elementos.
-% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],5,21,26,CS3)
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],5,21,26,CS3).
 
 --------------------------- Ejemplos Predicado cardsSetIsDobble ------------------------
 
@@ -1241,13 +1261,156 @@ dobbleGameToString(Game, Str):-
 
 --------------------------- Ejemplos Predicado NthCard ------------------------------------
 
-% Ej:
-%
+% Ej: Ejemplo que obtiene la carta numero 35 del mazo.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,X,26,CS),cardsSetIsDobble(CS),cardsSetNthCard(CS,35,C).
 
-% Ej:
-%
+% Ej: Ejemplo donde se quiere obtener una carta mayor al total de carta del mazo, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS3),cardsSetIsDobble(CS3),cardsSetNthCard(CS3,14,C).
 
-% Ej:
-%
+% Ej: Ejemplo donde se quiere obtener una carta de un cardsSet no definido, retorna false.
+% cardsSetNthCard(CS,5,C).
+
+--------------------------- Ejemplos Predicado FindTotalCards -----------------------------
+
+% Ej: Se entrega una carta obtenida del NthCard, por lo que deberia retornar el mismo valor de X = 57, una carta de 8 elementos.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,X,26,CS),cardsSetIsDobble(CS),cardsSetNthCard(CS,35,C), cardsSetFindTotalCards(C,TC).
+
+% Ej: Se le entrega una carta vacia, retorna false.
+% cardsSetFindTotalCards([],TC).
+
+% Ej: Se le entrega una carta sin definir, retorna false.
+% cardsSetFindTotalCards(C,TC).
+
+--------------------------- Ejemplos Predicado MissingCards -------------------------------
+
+% Ej: Se entrega un cardsSet que anteriormente fue limitado hasta 35 cartas, por lo tanto debera retornar las 22 restantes.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,35,51,CS),cardsSetIsDobble(CS),cardsSetMissingCards(CS,CS2).
+
+% Ej: Si se entrega un mazo de cartas que no cumple las reglas de dobble, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],5,21,26,CS), cardsSetMissingCards(CS,CS2).
+
+% Ej: Si se entrega un mazo de cartas vacio, retorna false.
+% cardSetMissingCards([],CS2).
+
+--------------------------- Ejemplos Predicado cardsSetToString -----------------------------
+
+% Ej: Se entrega un cardsSet dobble, lo retorna como String.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,X,26,CS),cardsSetIsDobble(CS),cardsSetToString(CS,CS_STR).
+
+% Ej: Se entrega un cardsSet que no cumple las reglas de dobble, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],5,21,26,CS), cardsSetToString(CS,CS_STR).
+
+% Ej: Se entrega un cardsSet sin su totalidad de cartas, retorna el CardsSet en string.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,8,26,CS), cardsSetIsDobble(CS), cardsSetToString(CS,CS_STR).
+
+---------------------------- Ejemplos Predicado dobbleGame ------------------------------------
+
+% Ej: Se entrega un cardsSet valido y un string en el modo de juego "Stack" y el NumPlayer.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,at,au,av,ax,ay,az,ba,bb,bc,bd,be,bf,bg,bh,bi,bj,bk,bl,bm,bn,bo,bp,bq,br,bs,bt,bu,bv,bx,by,bz],8,X,26,CS),cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game).
+
+% Ej: Se entrega un cardsSet que no ha sido valido, y que tampoco cumple las reglas de Dobble, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],5,21,26,CS), dobbleGame(3,CS,"Stack",25,Game).
+
+% Ej: se entrega un Modo de juego que no es string, retorna False.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,Stack,15,Game).
+
+---------------------------- Ejemplos Predicado dobbleGameRegister -----------------------------
+
+% Ej: Se registra al jugador "Juan" a la partida de dobble.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2).
+
+% Ej: Se vuelve a registrar al jugador Juan a la partida dobble, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Juan",G2,G3).
+
+% Ej: Se registran 2 jugadores mas a la partida.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4).
+
+$ Ej: Se entrega un game que no tiene registro al player, por lo cual entrega false. (Caso que aparece en el documento).
+$ cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",G2,Game).
+
+% Ej: Se intenta registrar el cuarto jugador cuando el limite es de 3 jugadores, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGameRegister("Pedro",G4,G5).
+
+---------------------------- Ejemplos Predicado dobbleGameWhoseTurnIsIt -----------------------------
+
+% Ej: entrega el turno del primer jugador, en este caso sera el de Fernando.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGameWhoseTurnIsIt(G4,NP).
+
+% Ej: En este caso Fernando y copo tienen 6 turnos por lo tanto sera el turno de Juan.
+% dobbleGameWhoseTurnIsIt([3,[[d, f, h, m],[b, e, h, k],[a, b, c, d],[b, g, j, m],[c, g, h, l],[a, h, i, j],[a, e, f, g],[d, e, j, l],[a, k, l, m],[d, g, i, k],[b, f, i, l],[c, f, j, k],[c, e, i, m]],"Stack",[["Fernando", [], 6, 0], ["Copo", [], 6, 0], ["Juan", [], 5, 0]],[],0,""],NP).
+
+% Ej: Indicamos como argumento el nombre "Copo", retonara false ya que el nombre que entrega es Fernando.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGameWhoseTurnIsIt(G4,"Copo").
+
+---------------------------- Ejemplos Predicado dobbleGamePlay -----------------------------
+
+----------- null ------------
+
+% Ej: Se realiza la accion null para quitar cartas del cardsSet y dejarlas sobre la mesa.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5).
+
+% Ej: Si se vuelve a realizar un null pero ya hay cartas sobre la mesa, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,null,G6).
+ 
+----------- pass -------------
+
+% Ej: un usuario realiza la accion pass, las cartas que estaban en mesa vuelven al cardsSet y se le suma +1 al turno del usuario que realizo la accion.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6).
+
+----------- spotIt -----------
+
+% Ej: el usuario Copo realiza la accion SpotIt, pero no acierta el elemento de la carta, por lo tanto hace uso de su turno y las cartas quedan en mesa.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8).
+
+% Ej: el usuario Juan realiza la accion SpotIt, acertando en decir el elemento correcto, por lo tanto se le suma puntaje.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9).
+
+% Ej: Caso donde un usuario realiza la accion spotIt pero no es su turno, retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9),  dobbleGamePlay(G9,[spotIt,"Juan",b],Game10).
+
+% Ej: Caso donde un usuario realiza spotIt pero no hay cartas en Mesa. retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9),  dobbleGamePlay(G9,[spotIt,"Fernando",c],Game10).
+
+---------- finish ----------
+
+% Ej: Se termina el juego, donde existe un ganador y se actualiza el estado del juago a 1.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGamePlay(G9, finish, Game1).
+
+% Ej: se termina el juego, pero hay empate y se actualiza el estado del juego a 1.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGamePlay(G9,null,Game1),dobbleGamePlay(Game1,[spotIt,"Fernando",h],Game2), dobbleGamePlay(Game2, finish, Game3).
+
+---------------------------- Ejemplos Predicado dobbleGameStatus -----------------------------
+
+% Ej: Se entrega un game el cual aun no ha terminado, entrega una string que aun sigue en partida el juego.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGameStatus(G9,Str).
+
+% Ej: Se entrega un game el cual ya ha finalizado, entrega un string que dice que el juego ya ha finalizado.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGamePlay(G9, finish, Game1), dobbleGameStatus(Game1, Str).
+
+% Ej: Se entrega una variable sin definir en Game, retorna false.
+% dobbleGameStatus(Game, Str).
+
+---------------------------- Ejemplos Predicado dobbleGameScore -----------------------------
+
+% Ej: Se consulta sobre el puntaje de Juan. retorna el score = 1.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGameScore(G9,"Juan",Score).
+
+% Ej: Se consulta sobre un jugador que no existe retorna false.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGameScore(G9,"Diego",Score).
+
+% Ej: Se consulta con una constante en el argumento del score, retorna false (Caso del documento)
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGameScore(G9,"Juan", 2).
+
+ ---------------------------- Ejemplos Predicado dobbleGameToString -----------------------------
+
+% Ej: Se hace uso del GameToString cuando el juego ya esta terminado.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGamePlay(G9, finish, Game1), dobbleGameToString(Game1,GStr).
+
+% Ej: Se hace uso del GameToString cuando el juego aun no ha temrinado.
+% el usuario Juan realiza la accion SpotIt, acertando en decir el elemento correcto, por lo tanto se le suma puntaje.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGameToString(G9,GStr).
+
+% Ej: Se hace uso cuando la partida ya ha terminado y hay empate.
+% cardsSet([a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, t,u,v,x,y,z],4,13,26,CS), cardsSetIsDobble(CS), dobbleGame(3,CS,"Stack",15,Game),dobbleGameRegister("Juan",Game,G2), dobbleGameRegister("Copo",G2,G3), dobbleGameRegister("Fernando",G3,G4), dobbleGamePlay(G4,null,G5), dobbleGamePlay(G5,pass,G6), dobbleGamePlay(G6,null,G7), dobbleGamePlay(G7,[spotIt,"Copo",m],G8), dobbleGamePlay(G8,[spotIt,"Juan",b],G9), dobbleGamePlay(G9,null,Game1),dobbleGamePlay(Game1,[spotIt,"Fernando",h],Game2), dobbleGamePlay(Game2, finish, Game3), dobbleGameToString(Game3,GStr).
 
 */
